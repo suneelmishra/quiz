@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anvi's Math Quiz Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4b79a1 100%);
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255,255,255,0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .game-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-screen, .category-screen, .quiz-screen, .end-screen {
+            display: none;
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .welcome-screen.active, .category-screen.active, .quiz-screen.active, .end-screen.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .anvi-image {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            margin: 1rem;
+            object-fit: cover;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .category-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            color: white;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .category-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+        }
+
+        .btn-game {
+            background: linear-gradient(145deg, #4a90e2 0%, #357abd 50%, #1e5f99 100%);
+            border: none;
+            color: white;
+            padding: 1.2rem 2.5rem;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 
+                0 10px 20px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-game:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            color: white;
+        }
+
+        .quiz-header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        .progress-bar {
+            height: 25px;
+            border-radius: 15px;
+            background: linear-gradient(145deg, #4a90e2 0%, #357abd 50%, #1e5f99 100%);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.2),
+                0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .progress {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            max-width: 900px;
+            width: 100%;
+            color: white;
+        }
+
+        .answer-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .answer-option {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                0 10px 20px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .answer-option:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .answer-option.selected {
+            background: rgba(74, 144, 226, 0.3);
+            border-color: rgba(74, 144, 226, 0.6);
+        }
+
+        .answer-option.correct {
+            background: rgba(40, 167, 69, 0.3);
+            border-color: rgba(40, 167, 69, 0.6);
+            animation: bounce 0.5s ease;
+        }
+
+        .answer-option.incorrect {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: rgba(220, 53, 69, 0.6);
+            animation: shake 0.5s ease;
+        }
+
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            font-size: 1.8rem;
+            color: white;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-left: 6px solid rgba(33, 150, 243, 0.8);
+            color: white;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions h3 {
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions ul li {
+            margin: 0.8rem 0;
+            font-size: 1.1rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .display-3 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .display-4 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .category-card h4 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .lead {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .alert {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-success {
+            border-left: 6px solid rgba(40, 167, 69, 0.8);
+            background: rgba(40, 167, 69, 0.1);
+        }
+
+        .alert-warning {
+            border-left: 6px solid rgba(255, 193, 7, 0.8);
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .celebration {
+            animation: celebration 2s ease infinite;
+        }
+
+        .score-display {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 1rem;
+            color: white;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes celebration {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        @media (max-width: 768px) {
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+            .answer-options {
+                grid-template-columns: 1fr;
+            }
+            .display-3 {
+                font-size: 2.5rem;
+            }
+            .display-4 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <button class="sound-toggle btn" id="soundToggle" onclick="toggleSound()">
+            <i class="fas fa-volume-up"></i>
+        </button>
+
+        <!-- Welcome Screen -->
+        <div class="welcome-screen active" id="welcomeScreen">
+            <div class="text-center">
+                <h1 class="display-3 mb-4">🎉 Welcome to Anvi's Math Quiz Game! 🎉</h1>
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIwIiBoZWlnaHQ9IjIyMCIgdmlld0JveD0iMCAwIDIyMCAyMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNGE5MGUyO3N0b3Atb3BhY2l0eToxIiAvPjxzdG9wIG9mZnNldD0iNTAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMzU3YWJkO3N0b3Atb3BhY2l0eToxIiAvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzFlNWY5OTtzdG9wLW9wYWNpdHk6MSIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMjIwIiBoZWlnaHQ9IjIyMCIgcng9IjExMCIgZmlsbD0idXJsKCNncmFkKSIvPjx0ZXh0IHg9IjExMCIgeT0iMTMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSI2MCIgZm9udC1mYW1pbHk9IkNvbWljIE5ldWUiIGZvbnQtd2VpZ2h0PSI4MDAiPkE8L3RleHQ+PC9zdmc+" alt="Anvi" class="anvi-image">
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> How to Play:</h3>
+                    <ul class="list-unstyled">
+                        <li>🎯 Choose a math topic you want to practice</li>
+                        <li>📝 Answer 5 questions in each category</li>
+                        <li>🖱️ Click your answers</li>
+                        <li>🏆 Get points for correct answers!</li>
+                        <li>🎵 Turn sound on/off with the button in the corner</li>
+                    </ul>
+                </div>
+                <button class="btn-game" onclick="showCategories()">
+                    <i class="fas fa-play"></i> Let's Start Learning!
+                </button>
+            </div>
+        </div>
+
+        <!-- Category Selection Screen -->
+        <div class="category-screen" id="categoryScreen">
+            <div class="text-center mb-4">
+                <h2 class="display-4">Choose Your Math Adventure! 🚀</h2>
+                <p class="lead">Pick a topic you want to practice</p>
+            </div>
+            <div class="category-grid" id="categoryGrid">
+                <!-- Categories will be populated by JavaScript -->
+            </div>
+            <button class="btn-game" onclick="showWelcome()">
+                <i class="fas fa-arrow-left"></i> Back to Welcome
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div class="quiz-screen" id="quizScreen">
+            <div class="quiz-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="progress">
+                            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                        </div>
+                        <small id="progressText">Question 1 of 5</small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="score" id="currentScore">Score: 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-card" id="questionCard">
+                <!-- Question content will be populated by JavaScript -->
+            </div>
+
+            <div class="text-center">
+                <button class="btn-game" onclick="previousQuestion()" id="prevBtn">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="btn-game" onclick="nextQuestion()" id="nextBtn">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn-game" onclick="showCategories()">
+                    <i class="fas fa-home"></i> Back to Categories
+                </button>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div class="end-screen" id="endScreen">
+            <div class="text-center">
+                <h1 class="display-3 celebration">🎉 Fantastic Job, Anvi! 🎉</h1>
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIwIiBoZWlnaHQ9IjIyMCIgdmlld0JveD0iMCAwIDIyMCAyMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNGE5MGUyO3N0b3Atb3BhY2l0eToxIiAvPjxzdG9wIG9mZnNldD0iNTAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMzU3YWJkO3N0b3Atb3BhY2l0eToxIiAvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzFlNWY5OTtzdG9wLW9wYWNpdHk6MSIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMjIwIiBoZWlnaHQ9IjIyMCIgcng9IjExMCIgZmlsbD0idXJsKCNncmFkKSIvPjx0ZXh0IHg9IjExMCIgeT0iMTMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSI2MCIgZm9udC1mYW1pbHk9IkNvbWljIE5ldWUiIGZvbnQtd2VpZ2h0PSI4MDAiPkE8L3RleHQ+PC9zdmc+" alt="Anvi" class="anvi-image">
+                <div class="score-display">
+                    <h2 id="finalScore">Your Final Score: 0/0</h2>
+                    <p id="finalMessage">Amazing work!</p>
+                    <div id="scoreBreakdown"></div>
+                </div>
+                <button class="btn-game" onclick="showCategories()">
+                    <i class="fas fa-redo"></i> Play Again
+                </button>
+                <button class="btn-game" onclick="showWelcome()">
+                    <i class="fas fa-home"></i> Back to Welcome
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let currentCategory = '';
+        let currentQuestion = 0;
+        let score = 0;
+        let totalQuestions = 5;
+        let soundEnabled = true;
+        let questions = [];
+        let userAnswers = [];
+
+        // Math categories
+        const categories = {
+            addition: {
+                name: 'Addition',
+                icon: '➕',
+                description: 'Practice adding numbers'
+            },
+            subtraction: {
+                name: 'Subtraction',
+                icon: '➖',
+                description: 'Practice subtracting numbers'
+            },
+            multiplication: {
+                name: 'Multiplication',
+                icon: '✖️',
+                description: 'Practice multiplying numbers'
+            },
+            division: {
+                name: 'Division',
+                icon: '➗',
+                description: 'Practice dividing numbers'
+            },
+            mixed: {
+                name: 'Mixed Practice',
+                icon: '🎲',
+                description: 'Random mix of all operations'
+            }
+        };
+
+        // Initialize the game
+        function initGame() {
+            showWelcome();
+            populateCategories();
+        }
+
+        function showWelcome() {
+            hideAllScreens();
+            document.getElementById('welcomeScreen').classList.add('active');
+        }
+
+        function showCategories() {
+            hideAllScreens();
+            document.getElementById('categoryScreen').classList.add('active');
+        }
+
+        function showQuiz() {
+            hideAllScreens();
+            document.getElementById('quizScreen').classList.add('active');
+        }
+
+        function showEnd() {
+            hideAllScreens();
+            document.getElementById('endScreen').classList.add('active');
+        }
+
+        function hideAllScreens() {
+            document.querySelectorAll('.welcome-screen, .category-screen, .quiz-screen, .end-screen')
+                .forEach(screen => screen.classList.remove('active'));
+        }
+
+        function populateCategories() {
+            const grid = document.getElementById('categoryGrid');
+            grid.innerHTML = '';
+            
+            Object.keys(categories).forEach(key => {
+                const category = categories[key];
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.onclick = () => startQuiz(key);
+                card.innerHTML = `
+                    <div class="category-icon">${category.icon}</div>
+                    <h4>${category.name}</h4>
+                    <p>${category.description}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function startQuiz(category) {
+            currentCategory = category;
+            currentQuestion = 0;
+            score = 0;
+            userAnswers = [];
+            generateQuestions(category);
+            showQuiz();
+            displayQuestion();
+        }
+
+        function generateQuestions(category) {
+            questions = [];
+            for (let i = 0; i < totalQuestions; i++) {
+                questions.push(generateQuestion(category));
+            }
+        }
+
+        function generateQuestion(category) {
+            let operation = category;
+            if (category === 'mixed') {
+                const operations = ['addition', 'subtraction', 'multiplication', 'division'];
+                operation = operations[Math.floor(Math.random() * operations.length)];
+            }
+
+            let num1, num2, question, answer;
+
+            switch (operation) {
+                case 'addition':
+                    num1 = Math.floor(Math.random() * 100) + 1;
+                    num2 = Math.floor(Math.random() * 100) + 1;
+                    question = `${num1} + ${num2} = ?`;
+                    answer = num1 + num2;
+                    break;
+                case 'subtraction':
+                    num1 = Math.floor(Math.random() * 100) + 50;
+                    num2 = Math.floor(Math.random() * num1);
+                    question = `${num1} - ${num2} = ?`;
+                    answer = num1 - num2;
+                    break;
+                case 'multiplication':
+                    num1 = Math.floor(Math.random() * 12) + 1;
+                    num2 = Math.floor(Math.random() * 12) + 1;
+                    question = `${num1} × ${num2} = ?`;
+                    answer = num1 * num2;
+                    break;
+                case 'division':
+                    num2 = Math.floor(Math.random() * 12) + 1;
+                    answer = Math.floor(Math.random() * 12) + 1;
+                    num1 = num2 * answer;
+                    question = `${num1} ÷ ${num2} = ?`;
+                    break;
+            }
+
+            // Generate multiple choice options
+            let options = [answer];
+            while (options.length < 4) {
+                let wrongAnswer;
+                if (operation === 'division' || answer < 20) {
+                    wrongAnswer = Math.max(1, answer + Math.floor(Math.random() * 10) - 5);
+                } else {
+                    wrongAnswer = Math.max(1, answer + Math.floor(Math.random() * 20) - 10);
+                }
+                if (!options.includes(wrongAnswer)) {
+                    options.push(wrongAnswer);
+                }
+            }
+
+            // Shuffle options
+            options.sort(() => Math.random() - 0.5);
+
+            return {
+                question,
+                answer,
+                options,
+                operation
+            };
+        }
+
+        function displayQuestion() {
+            const questionData = questions[currentQuestion];
+            const questionCard = document.getElementById('questionCard');
+            
+            questionCard.innerHTML = `
+                <h3 class="text-center mb-4">Question ${currentQuestion + 1}</h3>
+                <div class="text-center">
+                    <h2 class="display-4 mb-4">${questionData.question}</h2>
+                    <div class="answer-options">
+                        ${questionData.options.map((option, index) => 
+                            `<div class="answer-option" onclick="selectAnswer(${option}, this)">
+                                ${option}
+                            </div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+
+            updateProgress();
+            updateScore();
+        }
+
+        function selectAnswer(selectedAnswer, element) {
+            const questionData = questions[currentQuestion];
+            const isCorrect = selectedAnswer === questionData.answer;
+            
+            // Clear previous selections
+            document.querySelectorAll('.answer-option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+
+            // Mark selection
+            element.classList.add('selected');
+            element.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+            // Store answer
+            userAnswers[currentQuestion] = {
+                selected: selectedAnswer,
+                correct: questionData.answer,
+                isCorrect: isCorrect
+            };
+
+            if (isCorrect) {
+                score += 20;
+                playSound('correct');
+                showFeedback('Correct! Great job! 🎉', 'success');
+            } else {
+                playSound('incorrect');
+                showFeedback(`Not quite! The answer is ${questionData.answer} 📝`, 'warning');
+                // Show correct answer
+                document.querySelectorAll('.answer-option').forEach(opt => {
+                    if (parseInt(opt.textContent) === questionData.answer) {
+                        opt.classList.add('correct');
+                    }
+                });
+            }
+
+            updateScore();
+            
+            // Auto advance after 2 seconds
+            setTimeout(() => {
+                if (currentQuestion < totalQuestions - 1) {
+                    nextQuestion();
+                } else {
+                    endQuiz();
+                }
+            }, 2000);
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions - 1) {
+                currentQuestion++;
+                displayQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} of ${totalQuestions}`;
+        }
+
+        function updateScore() {
+            document.getElementById('currentScore').textContent = `Score: ${score}`;
+        }
+
+        function showFeedback(message, type) {
+            // Remove existing feedback
+            const existingAlert = document.querySelector('.alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} mt-3`;
+            alert.textContent = message;
+            document.getElementById('questionCard').appendChild(alert);
+        }
+
+        function endQuiz() {
+            const percentage = Math.round((score / (totalQuestions * 20)) * 100);
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = 'Outstanding! You\'re a math superstar! 🌟';
+            } else if (percentage >= 70) {
+                message = 'Great job! You\'re doing really well! 👏';
+            } else if (percentage >= 50) {
+                message = 'Good effort! Keep practicing! 💪';
+            } else {
+                message = 'Nice try! Practice makes perfect! 📚';
+            }
+
+            document.getElementById('finalScore').textContent = `Your Final Score: ${score}/${totalQuestions * 20} (${percentage}%)`;
+            document.getElementById('finalMessage').textContent = message;
+            
+            // Show score breakdown
+            const breakdown = document.getElementById('scoreBreakdown');
+            const correctCount = userAnswers.filter(a => a.isCorrect).length;
+            breakdown.innerHTML = `
+                <p><strong>✅ Correct: ${correctCount}</strong></p>
+                <p><strong>❌ Incorrect: ${totalQuestions - correctCount}</strong></p>
+                <p><strong>📊 Category: ${categories[currentCategory].name}</strong></p>
+            `;
+
+            playSound('finish');
+            showEnd();
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.querySelector('#soundToggle i');
+            icon.className = soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            
+            // Create audio context for simple beeps
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                switch (type) {
+                    case 'correct':
+                        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+                        break;
+                    case 'incorrect':
+                        oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                        oscillator.frequency.setValueAtTime(300, audioContext.currentTime + 0.2);
+                        break;
+                    case 'finish':
+                        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                        oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.1);
+                        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.2);
+                        break;
+                }
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                // Fallback for browsers that don't support Web Audio API
+                console.log('Sound not supported');
+            }
+        }
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
