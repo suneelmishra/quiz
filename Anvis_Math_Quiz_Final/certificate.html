@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Certificate - Anvi's Math Quiz</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body{background:linear-gradient(180deg,#e6f0ff,#f8fbff); font-family:'Poppins',sans-serif; color:#0b3766;}
+.cert{max-width:900px; margin:30px auto; padding:24px; border-radius:14px; background:white; box-shadow:0 12px 36px rgba(2,6,23,0.08); text-align:center;}
+.anvi-photo{width:120px;height:120px;border-radius:12px; object-fit:cover; border:6px solid #e6f7ff;}
+.title{color:#065f96; font-weight:800; font-size:28px;}
+.meta{display:flex; justify-content:space-around; margin-top:18px; color:#065f96;}
+.btn-print{margin-top:18px;}
+</style>
+</head>
+<body>
+  <div class="cert">
+    <img id="photo" class="anvi-photo" src="assets/images/anvi.png" alt="Anvi">
+    <h1 class="title">Certificate of Achievement</h1>
+    <p class="lead">This certificate is proudly presented to</p>
+    <h2 id="name">Anvi Mishra</h2>
+    <p id="statement">For playing Anvi's Math Quiz and doing a wonderful job!</p>
+    <div class="meta">
+      <div><strong>Date</strong><div id="dateVal"></div></div>
+      <div><strong>Score</strong><div id="scoreVal"></div></div>
+      <div><strong>Game</strong><div>Anvi's Math Quiz</div></div>
+    </div>
+    <button class="btn btn-primary btn-print" onclick="window.print()">Print Certificate 🖨️</button>
+  </div>
+<script>
+const res = JSON.parse(localStorage.getItem('anvi_last_result') || '{}');
+document.getElementById('name').textContent = res.name || 'Anvi Mishra';
+document.getElementById('dateVal').textContent = res.date || new Date().toLocaleDateString();
+document.getElementById('scoreVal').textContent = (res.score? res.score + ' / ' + (res.total||'') : 'N/A');
+</script>
+</body>
+</html>

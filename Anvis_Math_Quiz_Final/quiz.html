@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Anvi's Math Quiz - Play</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-glossy">
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex align-items-center gap-3">
+        <img src="assets/images/anvi.png" alt="Anvi" class="small-avatar">
+        <div>
+          <div class="h5 mb-0">Anvi's Math Quiz</div>
+          <div class="small text-white-50">Pick a category and play!</div>
+        </div>
+      </div>
+      <div>
+        <button id="restartBtn" class="btn btn-outline-light me-2">Restart</button>
+        <button id="homeBtn" class="btn btn-light">Home</button>
+      </div>
+    </div>
+
+    <div class="card glass p-3 mb-3">
+      <div id="categoryNav" class="d-flex flex-wrap gap-2 mb-2"></div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="small text-white-50">Question <span id="currentQ">1</span> / <span id="totalQ">1</span></div>
+        <div id="scoreWrap" class="text-end"><div class="small text-white-50">Score</div><div id="scoreDisplay" class="fs-4">0</div></div>
+      </div>
+
+      <div id="questionArea" class="p-3 bg-white bg-opacity-10 rounded-3" style="min-height:170px;"></div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+          <button id="prevQ" class="btn btn-outline-light btn-lg">◀ Previous</button>
+          <button id="nextQ" class="btn btn-outline-light btn-lg">Next ▶</button>
+        </div>
+        <div>
+          <button id="resetQ" class="btn btn-outline-warning">Reset Question</button>
+          <button id="downloadCert" class="btn btn-success ms-2">Download Certificate</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="endScreen" class="card glass p-4 text-center d-none">
+      <img src="assets/images/anvi.png" alt="Anvi" class="anvi-photo mb-2" style="width:140px;height:140px;">
+      <h3>Great job, Anvi! 🎉</h3>
+      <p class="mb-1">Final Score: <strong id="finalScore">0</strong></p>
+      <p class="mb-2 small text-white-50">You earned stickers and badges — keep playing to collect more!</p>
+      <div id="rewards" class="mb-3"></div>
+      <div class="d-flex justify-content-center gap-3">
+        <button id="playAgain" class="btn btn-lg btn-primary">Play Again</button>
+        <button id="viewCert" class="btn btn-outline-light">View / Print Certificate</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="questions.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

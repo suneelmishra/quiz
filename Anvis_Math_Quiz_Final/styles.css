@@ -1,0 +1,38 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+:root{
+  --bg1: linear-gradient(135deg,#0f172a,#075985);
+  --glass: rgba(255,255,255,0.06);
+  --glass-strong: rgba(255,255,255,0.10);
+  --accent1: #60a5fa;
+  --accent2: #3b82f6;
+}
+body.bg-glossy{background: var(--bg1); font-family: 'Poppins', sans-serif; color: #fff; min-height:100vh;}
+.glass{background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); border-radius:14px; box-shadow: 0 8px 30px rgba(2,6,23,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,0.06);}
+.welcome-card{max-width:720px; border-radius:18px;}
+.anvi-photo{width:160px; height:160px; object-fit:cover; border-radius:12px; border:6px solid rgba(255,255,255,0.06); box-shadow:0 12px 30px rgba(0,0,0,0.35);}
+.small-avatar{width:56px; height:56px; object-fit:cover; border-radius:10px; border:3px solid rgba(255,255,255,0.06);}
+.brand{color:var(--accent1); font-weight:800;}
+.start-btn{background:linear-gradient(145deg,var(--accent1),var(--accent2)); color:white; border:none; padding:12px 26px; font-size:1.1rem; border-radius:12px; box-shadow:0 10px 30px rgba(59,130,246,0.25);}
+.start-btn:hover{transform:translateY(-3px);}
+.btn-light{background:white; color:#0b3766;}
+#categoryNav .btn{border-radius:12px; background:transparent; color:#e6f0ff; border:1px solid rgba(255,255,255,0.06); padding:8px 12px;}
+#categoryNav .btn.active{background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:white; border:none; box-shadow:0 8px 20px rgba(59,130,246,0.18);}
+#questionArea{font-size:1.25rem; line-height:1.4;}
+.option-card{cursor:grab; user-select:none; padding:12px; border-radius:12px; background:linear-gradient(180deg,#ffffff12,#ffffff08); border:1px solid rgba(255,255,255,0.04); margin-bottom:10px;}
+.drop-zone{min-height:70px; border:2px dashed rgba(255,255,255,0.06); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#e6f0ff; font-weight:600; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));}
+.badge-sticker{display:inline-block; padding:6px 10px; border-radius:10px; background:linear-gradient(90deg,#ffedd5,#ffd6e0); color:#0b3766; font-weight:700;}
+.sticker{width:72px; height:72px; object-fit:cover; border-radius:10px; box-shadow:0 8px 18px rgba(0,0,0,0.2);}
+
+/* buttons */
+.btn-outline-light{border:1px solid rgba(255,255,255,0.12); color:#eaf2ff;}
+.btn-primary{background:linear-gradient(90deg,var(--accent2),#2563eb); border:none; box-shadow:0 8px 20px rgba(37,99,235,0.18);}
+
+/* confetti simple style */
+.confetti{position:fixed; width:10px; height:14px; z-index:2000; border-radius:2px;}
+
+/* responsive */
+@media (max-width:720px){
+  .anvi-photo{width:120px;height:120px;}
+  #questionArea{font-size:1.05rem;}
+}
